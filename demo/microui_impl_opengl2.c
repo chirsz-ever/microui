@@ -3,7 +3,7 @@
 #include "microui.h"
 #include "microui_impl_opengl2.h"
 #include "GL/gl.h"
-#include "atlas.inl"
+#include "atlas.h"
 
 #define BUFFER_SIZE 16384
 

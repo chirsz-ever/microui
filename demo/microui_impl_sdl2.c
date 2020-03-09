@@ -1,11 +1,8 @@
 #include "SDL2/SDL.h"
 #include "microui.h"
 #include "microui_impl_sdl2.h"
-#include "atlas.inl"
+#include "atlas.h"
 
-
-static int width  = 800;
-static int height = 600;
 
 static const char button_map[256] = {
   [ SDL_BUTTON_LEFT   & 0xff ] =  MU_MOUSE_LEFT,
