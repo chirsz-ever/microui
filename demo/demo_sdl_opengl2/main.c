@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
   SDL_Window *window = SDL_CreateWindow(
     NULL, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-    800, 600, SDL_WINDOW_OPENGL);
+    800, 600, SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
   SDL_check(window != NULL);
 
   /* init OpenGL */
@@ -62,7 +62,9 @@ int main(int argc, char **argv) {
 
     /* process frame */
     microui_sdl2_new_frame(window);
-    microui_opengl2_new_frame();
+    int w, h;
+    SDL_GL_GetDrawableSize(window, &w, &h);
+    microui_opengl2_new_frame(w, h);
     process_frame(ctx);
 
     /* render */

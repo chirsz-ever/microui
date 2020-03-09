@@ -12,8 +12,8 @@ static GLfloat  vert_buf[BUFFER_SIZE *  8];
 static GLubyte color_buf[BUFFER_SIZE * 16];
 static GLuint  index_buf[BUFFER_SIZE *  6];
 
-static int width  = 800;
-static int height = 600;
+static int width;
+static int height;
 static int buf_idx;
 
 
@@ -92,12 +92,12 @@ static void push_quad(mu_Rect dst, mu_Rect src, mu_Color color) {
 }
 
 
-void draw_rect(mu_Rect rect, mu_Color color) {
+static void draw_rect(mu_Rect rect, mu_Color color) {
   push_quad(rect, atlas[ATLAS_WHITE], color);
 }
 
 
-void draw_text(const char *text, mu_Vec2 pos, mu_Color color) {
+static void draw_text(const char *text, mu_Vec2 pos, mu_Color color) {
   mu_Rect dst = { pos.x, pos.y, 0, 0 };
   for (const char *p = text; *p; p++) {
     if ((*p & 0xc0) == 0x80) { continue; }
@@ -111,7 +111,7 @@ void draw_text(const char *text, mu_Vec2 pos, mu_Color color) {
 }
 
 
-void draw_icon(int id, mu_Rect rect, mu_Color color) {
+static void draw_icon(int id, mu_Rect rect, mu_Color color) {
   mu_Rect src = atlas[id];
   int x = rect.x + (rect.w - src.w) / 2;
   int y = rect.y + (rect.h - src.h) / 2;
@@ -119,7 +119,7 @@ void draw_icon(int id, mu_Rect rect, mu_Color color) {
 }
 
 
-void set_clip_rect(mu_Rect rect) {
+static void set_clip_rect(mu_Rect rect) {
   flush();
   glScissor(rect.x, height - (rect.y + rect.h), rect.w, rect.h);
 }
@@ -152,8 +152,9 @@ void microui_opengl2_shutdown() {
   // nothing to do
 }
 
-void microui_opengl2_new_frame() {
-  // nothing to do
+void microui_opengl2_new_frame(int display_width, int display_height) {
+  width = display_width;
+  height = display_height;
 }
 
 void microui_opengl2_render_data(mu_Context *ctx) {
