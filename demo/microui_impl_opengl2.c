@@ -150,7 +150,9 @@ void microui_opengl2_init() {
 }
 
 void microui_opengl2_shutdown() {
-  // nothing to do
+  if (atlas_texture_id) {
+    glDeleteTextures(1, &atlas_texture_id);
+  }
 }
 
 void microui_opengl2_new_frame(int display_width, int display_height) {
