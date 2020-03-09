@@ -22,26 +22,9 @@ static const char key_map[256] = {
 };
 
 
-static int text_width(mu_Font font, const char *text, int len) {
-  if (len == -1) { len = strlen(text); }
-  int res = 0;
-  for (const char *p = text; *p && len--; p++) {
-    if ((*p & 0xc0) == 0x80) { continue; }
-    int chr = mu_min((unsigned char) *p, 127);
-    res += atlas[ATLAS_FONT + chr].w;
-  }
-  return res;
-}
-
-
-static int text_height(mu_Font font) {
-  return 18;
-}
-
-
 static void microui_sdl2_init(mu_Context *ctx, SDL_Window *window) {
-  ctx->text_width = text_width;
-  ctx->text_height = text_height;
+  ctx->text_width = atlas_text_width;
+  ctx->text_height = atlas_text_height;
 }
 
 

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "microui.h"
 #include "atlas.h"
 
@@ -991,3 +992,19 @@ const mu_Rect atlas[] = {
   [ ATLAS_FONT+127 ] = { 108, 51, 6, 17 },
 };
 
+
+int atlas_text_width(mu_Font font, const char *text, int len) {
+  if (len == -1) { len = strlen(text); }
+  int res = 0;
+  for (const char *p = text; *p && len--; p++) {
+    if ((*p & 0xc0) == 0x80) { continue; }
+    int chr = mu_min((unsigned char) *p, 127);
+    res += atlas[ATLAS_FONT + chr].w;
+  }
+  return res;
+}
+
+
+int atlas_text_height(mu_Font font) {
+  return 18;
+}
