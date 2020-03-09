@@ -40,10 +40,10 @@ $(EXE): $(OBJS)
 
 microui.o     : $(MICROUI_DICT)/microui.h
 microui_demo.o: $(MICROUI_DICT)/microui.h ../microui_demo.h
-atlas.o       : ../atlas.h
+atlas.o       : $(MICROUI_DICT)/microui.h ../atlas.h
 
-microui_impl_sdl2.o   : $(MICROUI_DICT)/microui.h ../microui_impl_sdl2.h
-microui_impl_opengl2.h: $(MICROUI_DICT)/microui.h ../microui_impl_opengl2.h ../atlas.h
+microui_impl_opengl2.o: $(MICROUI_DICT)/microui.h ../microui_impl_opengl2.h ../atlas.h
+microui_impl_sdl2.o   : $(MICROUI_DICT)/microui.h ../microui_impl_sdl2.h ../atlas.h
 main.o                : $(MICROUI_DICT)/microui.h ../microui_demo.h ../microui_impl_sdl2.h ../microui_impl_opengl2.h
 
 .PHONY: all clean
