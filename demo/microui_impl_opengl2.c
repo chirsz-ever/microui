@@ -7,6 +7,7 @@
 
 #define BUFFER_SIZE 16384
 
+static GLuint  atlas_texture_id;
 static GLfloat   tex_buf[BUFFER_SIZE *  8];
 static GLfloat  vert_buf[BUFFER_SIZE *  8];
 static GLubyte color_buf[BUFFER_SIZE * 16];
@@ -29,6 +30,7 @@ static void flush(void) {
   glPushMatrix();
   glLoadIdentity();
 
+  glBindTexture(GL_TEXTURE_2D, atlas_texture_id);
   glTexCoordPointer(2, GL_FLOAT, 0, tex_buf);
   glVertexPointer(2, GL_FLOAT, 0, vert_buf);
   glColorPointer(4, GL_UNSIGNED_BYTE, 0, color_buf);
@@ -138,9 +140,8 @@ void microui_opengl2_init() {
   glEnableClientState(GL_COLOR_ARRAY);
 
   /* init texture */
-  GLuint id;
-  glGenTextures(1, &id);
-  glBindTexture(GL_TEXTURE_2D, id);
+  glGenTextures(1, &atlas_texture_id);
+  glBindTexture(GL_TEXTURE_2D, atlas_texture_id);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, ATLAS_WIDTH, ATLAS_HEIGHT, 0,
     GL_ALPHA, GL_UNSIGNED_BYTE, atlas_texture);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
