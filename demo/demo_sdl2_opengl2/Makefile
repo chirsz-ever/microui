@@ -2,7 +2,7 @@
 
 MICROUI_DICT = ../../src
 
-EXE = demo_sdl_opengl2
+EXE = demo_sdl2_opengl2
 SOURCES = main.c ../microui_demo.c
 SOURCES += ../atlas.c
 SOURCES += ../microui_impl_sdl2.c ../microui_impl_opengl2.c
