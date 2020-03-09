@@ -4,7 +4,7 @@ MICROUI_DICT = ../../src
 
 EXE = demo_sdl_opengl2
 SOURCES = main.c ../microui_demo.c
-SOURCES += ../renderer.c
+SOURCES += ../microui_impl_sdl2.c ../microui_impl_opengl2.c
 SOURCES += $(MICROUI_DICT)/microui.c
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 
@@ -39,8 +39,10 @@ $(EXE): $(OBJS)
 
 microui.o     : $(MICROUI_DICT)/microui.h
 microui_demo.o: $(MICROUI_DICT)/microui.h ../microui_demo.h
-renderer.o    : $(MICROUI_DICT)/microui.h ../renderer.h ../atlas.inl
-main.o        : $(MICROUI_DICT)/microui.h ../microui_demo.h ../renderer.h
+
+microui_impl_sdl2.o   : $(MICROUI_DICT)/microui.h ../microui_impl_sdl2.h
+microui_impl_opengl2.h: $(MICROUI_DICT)/microui.h ../microui_impl_opengl2.h ../atlas.inl
+main.o                : $(MICROUI_DICT)/microui.h ../microui_demo.h ../microui_impl_sdl2.h ../microui_impl_opengl2.h
 
 .PHONY: all clean
 clean:

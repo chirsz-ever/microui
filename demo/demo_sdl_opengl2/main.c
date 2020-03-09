@@ -1,8 +1,10 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 #include <stdio.h>
-#include "renderer.h"
 #include "microui.h"
 #include "microui_demo.h"
+#include "microui_impl_opengl2.h"
+#include "microui_impl_sdl2.h"
 
 
 static void process_frame(mu_Context *ctx) {
@@ -13,93 +15,65 @@ static void process_frame(mu_Context *ctx) {
   mu_end(ctx);
 }
 
-
-
-static const char button_map[256] = {
-  [ SDL_BUTTON_LEFT   & 0xff ] =  MU_MOUSE_LEFT,
-  [ SDL_BUTTON_RIGHT  & 0xff ] =  MU_MOUSE_RIGHT,
-  [ SDL_BUTTON_MIDDLE & 0xff ] =  MU_MOUSE_MIDDLE,
-};
-
-static const char key_map[256] = {
-  [ SDLK_LSHIFT       & 0xff ] = MU_KEY_SHIFT,
-  [ SDLK_RSHIFT       & 0xff ] = MU_KEY_SHIFT,
-  [ SDLK_LCTRL        & 0xff ] = MU_KEY_CTRL,
-  [ SDLK_RCTRL        & 0xff ] = MU_KEY_CTRL,
-  [ SDLK_LALT         & 0xff ] = MU_KEY_ALT,
-  [ SDLK_RALT         & 0xff ] = MU_KEY_ALT,
-  [ SDLK_RETURN       & 0xff ] = MU_KEY_RETURN,
-  [ SDLK_BACKSPACE    & 0xff ] = MU_KEY_BACKSPACE,
-};
-
-
-static int text_width(mu_Font font, const char *text, int len) {
-  if (len == -1) { len = strlen(text); }
-  return r_get_text_width(text, len);
-}
-
-static int text_height(mu_Font font) {
-  return r_get_text_height();
+static void SDL_check(int should_true) {
+  if (!should_true) {
+    fprintf(stderr, "Error: %s\n", SDL_GetError());
+    exit(EXIT_FAILURE);
+  }
 }
 
 
 int main(int argc, char **argv) {
-  /* init SDL and renderer */
-  SDL_Init(SDL_INIT_EVERYTHING);
-  r_init();
+  /* init SDL */
+  SDL_check(SDL_Init(SDL_INIT_EVERYTHING) == 0);
+
+  /* init SDL window */
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+  SDL_Window *window = SDL_CreateWindow(
+    NULL, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+    800, 600, SDL_WINDOW_OPENGL);
+  SDL_check(window != NULL);
+
+  /* init OpenGL */
+  SDL_GLContext glcontext = SDL_GL_CreateContext(window);
+  SDL_check(glcontext != NULL);
 
   /* init microui */
-  mu_Context *ctx = malloc(sizeof(mu_Context));
+  mu_Context _ctx;
+  mu_Context *ctx = &_ctx;
   mu_init(ctx);
-  ctx->text_width = text_width;
-  ctx->text_height = text_height;
+
+  /* setup platform/renderer bindings */
+  microui_sdl2_init_opengl(ctx, window, glcontext);
+  microui_opengl2_init();
 
   /* main loop */
   for (;;) {
     /* handle SDL events */
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
-      switch (e.type) {
-        case SDL_QUIT: exit(EXIT_SUCCESS); break;
-        case SDL_MOUSEMOTION: mu_input_mousemove(ctx, e.motion.x, e.motion.y); break;
-        case SDL_MOUSEWHEEL: mu_input_scroll(ctx, 0, e.wheel.y * -30); break;
-        case SDL_TEXTINPUT: mu_input_text(ctx, e.text.text); break;
-
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP: {
-          int b = button_map[e.button.button & 0xff];
-          if (b && e.type == SDL_MOUSEBUTTONDOWN) { mu_input_mousedown(ctx, e.button.x, e.button.y, b); }
-          if (b && e.type ==   SDL_MOUSEBUTTONUP) { mu_input_mouseup(ctx, e.button.x, e.button.y, b);   }
-          break;
-        }
-
-        case SDL_KEYDOWN:
-        case SDL_KEYUP: {
-          int c = key_map[e.key.keysym.sym & 0xff];
-          if (c && e.type == SDL_KEYDOWN) { mu_input_keydown(ctx, c); }
-          if (c && e.type ==   SDL_KEYUP) { mu_input_keyup(ctx, c);   }
-          break;
-        }
+      microui_sdl2_process_event(ctx, &e);
+      if (e.type == SDL_QUIT) {
+        goto loopend;
       }
     }
 
     /* process frame */
+    microui_sdl2_new_frame(window);
+    microui_opengl2_new_frame();
     process_frame(ctx);
 
     /* render */
-    r_clear(mu_color(bg[0], bg[1], bg[2], 255));
-    mu_Command *cmd = NULL;
-    while (mu_next_command(ctx, &cmd)) {
-      switch (cmd->type) {
-        case MU_COMMAND_TEXT: r_draw_text(cmd->text.str, cmd->text.pos, cmd->text.color); break;
-        case MU_COMMAND_RECT: r_draw_rect(cmd->rect.rect, cmd->rect.color); break;
-        case MU_COMMAND_ICON: r_draw_icon(cmd->icon.id, cmd->icon.rect, cmd->icon.color); break;
-        case MU_COMMAND_CLIP: r_set_clip_rect(cmd->clip.rect); break;
-      }
-    }
-    r_present();
+    glClearColor(bg[0] / 255., bg[1] / 255., bg[2] / 255., 1.);
+    glClear(GL_COLOR_BUFFER_BIT);
+    microui_opengl2_render_data(ctx);
+    SDL_GL_SwapWindow(window);
   }
-
+loopend:
+  microui_opengl2_shutdown();
+  microui_sdl2_shutdown();
   return 0;
 }
 
