@@ -3,6 +3,10 @@
 
 #include "microui.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
 /* this head file provides declarations of the altas data
  * and functions defined in atlas.c.
  */
@@ -15,5 +19,9 @@ extern const mu_Rect atlas[];
 
 int atlas_text_width(mu_Font font, const char *text, int len);
 int atlas_text_height(mu_Font font);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus
 
 #endif

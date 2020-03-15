@@ -8,6 +8,10 @@
 #ifndef MICROUI_H
 #define MICROUI_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
 #define MU_VERSION "2.00"
 
 #define MU_COMMANDLIST_SIZE     (256 * 1024)
@@ -28,10 +32,6 @@
 #define mu_min(a, b)            ((a) < (b) ? (a) : (b))
 #define mu_max(a, b)            ((a) > (b) ? (a) : (b))
 #define mu_clamp(x, a, b)       mu_min(b, mu_max(a, x))
-
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
 
 enum {
   MU_CLIP_PART = 1,
